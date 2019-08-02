@@ -1,10 +1,10 @@
-description: "Usage of timakin/golangci-lint orb"
+description: "Usage of valimail/golangci-lint orb"
 
 usage:
   version: 2.1
 
   orbs:
-    golangci-lint: timakin/golangci-lint@volatile
+    golangci-lint: valimail/golangci-lint@volatile
 
   workflows:
     build:
