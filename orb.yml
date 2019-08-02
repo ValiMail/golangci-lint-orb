@@ -106,4 +106,3 @@ jobs:
         working-directory: <<parameters.working-directory>>
         workspace-root: << parameters.workspace-root >>
 version: 2.1
-

@@ -9,30 +9,18 @@ executors:
     docker:
       - image: circleci/golang:latest
 
-jobs:
-  test-job:
-    resource_class: small
-    executor: go-system
-    steps:
-      - checkout
-      - run:
-          name: Set up test files
-          command: |
-            mkdir server
-            mv test/go.mod server/go.mod
-            mv test/go.sum server/go.sum
-            mv test/main.go server/main.go
-            mv test/golangci.yml server/.golangci.yml
-            cd server
-            go mod download
-            go mod vendor
-      - golangci-lint/lint:
-          checkout: false
-          working-directory: server
-
 workflows:
   build:
     jobs:
-      - orb-tools/lint
-      - test-job
-      
+       - orb-tools/pack:
+          name: pack
+       - orb-tools/test-in-builds:
+          attach-workspace: true
+          orb-name: golangci-lint
+          test-steps:
+            - orb-tools/local-test-build:
+                test-config-location: test/test.yml
+          name: test
+          # context: orb-publishing
+          requires:
+            - pack

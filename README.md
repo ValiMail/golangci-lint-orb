@@ -1,8 +1,8 @@
 # valimail/golangci-lint - CircleCI Orb
 
-[![CircleCI](https://circleci.com/gh/ValiMail/golangci-lint-orb.svg?style=svg&circle-token=540455df00def7479a3c81c9ab9ac8ab4f810178)](https://circleci.com/gh/ValiMail/golangci-lint-orb)
+[![CircleCI](https://circleci.com/gh/ValiMail/golangci-lint-orb.svg?style=svg&circle-token=11c8bf41a54c14ea7d7b9325de6a05a066f3e12b)](https://circleci.com/gh/ValiMail/golangci-lint-orb)
 
-CircleCI Orb for managing dependencies like Ruby gems and JS packages.
+CircleCI Orb for running `golangci-lint run` on Go projects
 
 Published at https://circleci.com/orbs/registry/orb/valimail/golangci-lint
 
