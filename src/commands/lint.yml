@@ -1,4 +1,5 @@
-description: "Runs the goalngci-lint"
+description: >
+  Runs the golangci-lint
 
 parameters:
   checkout:
@@ -6,24 +7,28 @@ parameters:
       Boolean for whether or not to checkout as a first step. Default is true.
     type: boolean
     default: true
+
   attach-workspace:
     description: >
       Boolean for whether or not to attach to an existing workspace. Default
       is false.
     type: boolean
     default: false
+
   workspace-root:
     description: >
       Workspace root path that is either an absolute path or a path relative
       to the working directory. Defaults to '.' (the working directory)
     type: string
     default: "."
+
   working-directory:
-    description: directory path for this job
+    description: Directory path for this job
     type: string
     default: "."
+
   directories:
-    description: directory path list of the lint target
+    description: Directory path list of the lint target
     type: string
     default: "./..."
 
@@ -32,12 +37,14 @@ steps:
       condition: << parameters.checkout >>
       steps:
         - checkout
+
   - when:
       condition: << parameters.attach-workspace >>
       steps:
         - attach_workspace:
             at: << parameters.workspace-root >>
+
   - run:
-      name: Run goalngci-lint
+      name: Run golangci-lint
       working_directory: << parameters.working-directory >>
       command: golangci-lint run << parameters.directories >>

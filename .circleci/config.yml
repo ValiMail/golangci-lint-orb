@@ -2,117 +2,37 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@8.3.0
+  golangci-lint: valimail/golangci-lint@volatile
 
-# yaml anchor filters
-integration-dev_filters: &integration-dev_filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /integration-.*/
+executors:
+  go-system:
+    docker:
+      - image: circleci/golang:latest
 
-integration-master_filters: &integration-master_filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /master-.*/
-
-prod-deploy_requires: &prod-deploy_requires
-  [test-commands-master]
+jobs:
+  test-job:
+    resource_class: small
+    executor: go-system
+    steps:
+      - checkout
+      - run:
+          name: Set up test files
+          command: |
+            mkdir server
+            mv test/go.mod server/go.mod
+            mv test/go.sum server/go.sum
+            mv test/main.go server/main.go
+            mv test/golangci.yml server/.golangci.yml
+            cd server
+            go mod download
+            go mod vendor
+      - golangci-lint/lint:
+          checkout: false
+          working-directory: server
 
 workflows:
-  lint_pack-validate_publish-dev:
+  build:
     jobs:
       - orb-tools/lint
-      - orb-tools/pack:
-          requires:
-            - orb-tools/lint
-      - orb-tools/publish-dev:
-          context: orb-publishing
-          orb-name: timakin/golangci-lint
-          requires:
-            - orb-tools/pack
-      - orb-tools/trigger-integration-workflow:
-          ssh-fingerprints: 7a:48:00:0c:91:d3:c5:95:36:f1:3c:5d:ed:e3:94:89
-          requires:
-            - orb-tools/publish-dev
-          filters:
-            branches:
-              ignore: master
-      - orb-tools/trigger-integration-workflow:
-          ssh-fingerprints: 7a:48:00:0c:91:d3:c5:95:36:f1:3c:5d:ed:e3:94:89
-          tag: master
-          requires:
-            - orb-tools/publish-dev
-          filters:
-            branches:
-              only: master
-
-  integration-tests_prod-release:
-    jobs:
-      - orb-tools/pack:
-          name: pack-dev
-          filters: *integration-dev_filters
-
-      - orb-tools/test-in-builds:
-          attach-workspace: true
-          orb-name: golangci-lint
-          test-steps:
-            - orb-tools/local-test-build:
-                test-config-location: test/test.yml
-          name: test-commands-dev
-          context: orb-publishing
-          filters: *integration-dev_filters
-          requires:
-            - pack-dev
-
-      - orb-tools/pack:
-          name: pack-master
-          filters: *integration-master_filters
-
-      - orb-tools/test-in-builds:
-          attach-workspace: true
-          orb-name: golangci-lint
-          test-steps:
-            - orb-tools/local-test-build:
-                test-config-location: test/test.yml
-          name: test-commands-master
-          context: orb-publishing
-          filters: *integration-master_filters
-          requires:
-            - pack-master
-
-      # patch, minor, or major publishing
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-patch
-          context: orb-publishing
-          orb-name: timakin/golangci-lint
-          requires: *prod-deploy_requires
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /master-patch.*/
-
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-minor
-          context: orb-publishing
-          orb-name: timakin/golangci-lint
-          release: minor
-          requires: *prod-deploy_requires
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /master-minor.*/
-
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-major
-          context: orb-publishing
-          orb-name: timakin/golangci-lint
-          release: major
-          requires: *prod-deploy_requires
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /master-major.*/
+      - test-job
+      

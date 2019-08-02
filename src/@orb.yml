@@ -1,5 +1,4 @@
 version: 2.1
 
-description: |
-  CircleCI orb for Reviewdog.
-  https://github.com/haya14busa/reviewdog
+description: >
+  Run golangci-lint https://github.com/golangci/golangci-lint
